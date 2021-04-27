@@ -54,7 +54,6 @@ class Translator(object):
                 return tuple([self.collect_active_part(item, *args) for item in beamed_tensor])
             return self.collect_active_part(beamed_tensor, *args)
 
-
     def collate_active_info(self, inputs_for_decoder, inst_idx_to_position_map, active_inst_idx_list, n_bm):
         # Sentences which are still active are collected,
         # so the decoder will not run on completed sentences.
@@ -89,7 +88,6 @@ class Translator(object):
             hyps = [inst_dec_beams[inst_idx].get_hypothesis_from_tk(t, k) for t, k in tk[:n_best]]
             all_hyp += [hyps]
         return all_hyp, all_scores
-
 
     def translate_batch_ARFormer(self, encoder_outputs, category):
         ''' Translation work in one batch '''

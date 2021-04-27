@@ -11,6 +11,7 @@ algorithms_mapping = {
     'ef': EasyFirst
 }
 
+
 def generate(
             opt, model, teacher_model, 
             encoder_outputs, teacher_encoder_outputs, category, 
@@ -48,7 +49,6 @@ def generate(
 
     tgt_tokens = (1 - length_mask) * tgt_tokens + length_mask * Constants.PAD
     tgt_tokens = tgt_tokens.view(bsz * length_beam_size, max_len)
-
 
     inputs_for_decoder = model.prepare_inputs_for_decoder(encoder_outputs, category)
     for key in inputs_for_decoder.keys():
