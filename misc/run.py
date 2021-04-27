@@ -131,6 +131,7 @@ def run_eval(
         with torch.no_grad():
             encoder_outputs, category, labels = get_forword_results(opt, model, data, device=device, only_data=True,
                                                                     vocab=vocab)
+            import pdb; pdb.set_trace()
             if crit is not None:
                 _ = crit.get_loss(encoder_outputs)
 
