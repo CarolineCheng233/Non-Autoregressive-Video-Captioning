@@ -202,6 +202,8 @@ def run_eval(
                     best_candidate_score[video_id].append(score)
         pb.update()
 
+    import pdb; pdb.set_trace()
+
     if collect_best_candidate_iterative_results:
         assert collect_path is not None
         if not collect_ar_flag:
