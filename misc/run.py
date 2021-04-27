@@ -330,18 +330,18 @@ def train_network_all(opt, model, device, **kwargs):
         if epoch < start_epoch:
             continue
 
-        train_loader.dataset.shuffle()
-
-        logger.write_text("epoch %d lr=%g (ss_prob=%g)" % (epoch, optimizer.get_lr(), opt.get('teacher_prob', 1)))
-        # training
-        train_loss = run_train(opt, model, crit, optimizer, train_loader, device, logger=logger, epoch=epoch)
-
-        optimizer.epoch_update_learning_rate()
+        # train_loader.dataset.shuffle()
+        #
+        # logger.write_text("epoch %d lr=%g (ss_prob=%g)" % (epoch, optimizer.get_lr(), opt.get('teacher_prob', 1)))
+        # # training
+        # train_loss = run_train(opt, model, crit, optimizer, train_loader, device, logger=logger, epoch=epoch)
+        #
+        # optimizer.epoch_update_learning_rate()
 
         if (epoch+1) > opt['start_eval_epoch'] and (epoch+1) % opt["save_checkpoint_every"] == 0:
             res = run_eval(opt, model, crit_eval, vali_loader, vocab, device, teacher_model=teacher_model, analyze=True,
                            summarywriter=summarywriter, global_step=epoch)
-            res['train_loss'] = train_loss
+            # res['train_loss'] = train_loss
             res['epoch'] = epoch
             logger.write(res)
 
