@@ -85,6 +85,7 @@ def main():
     parser.add_argument('-collect_path', type=str, default='./collected_captions')
     parser.add_argument('-collect', default=False, action='store_true')
     parser.add_argument('-nobc', '--not_only_best_candidate', default=False, action='store_true')
+    parser.add_argument('--base_checkpoint_path', type=str)
 
     opt = parser.parse_args()
 

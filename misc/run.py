@@ -365,8 +365,8 @@ def train_network_all(opt, model, device, **kwargs):
         del optimizer
         torch.cuda.empty_cache()
         os.system(
-            'python translate.py --default --method {} --dataset {} --record --scope {} --field {} -em test --use_ct'.format(
-                opt['method'], opt['dataset'], opt['scope'] if opt['scope'] else '\"\"', ' '.join(opt['field']))
+            'python translate.py --default --method {} --dataset {} --record --scope {} --field {} -em test --use_ct --base_checkpoint_path {}'.format(
+                opt['method'], opt['dataset'], opt['scope'] if opt['scope'] else '\"\"', ' '.join(opt['field']), opt['base_checkpoint_path'])
         )
 
     if opt['k_best_model'] > 1:
