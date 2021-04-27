@@ -5,11 +5,14 @@ import wget
 import os
 import pickle
 from misc import utils_corpora
+import nltk
+
 
 # only words that occur more than this number of times will be put in vocab
 word_count_threshold = {
     'MSRVTT': 2,
-    'Youtube2Text': 0
+    'Youtube2Text': 0,
+    'vatex': 5
 }
 
 
@@ -67,7 +70,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--dataset', default='VATEX', type=str)
+    parser.add_argument('-d', '--dataset', default='vatex', type=str)
     parser.add_argument('-sort', '--sort_vocab', default=False, action='store_true')
     args = parser.parse_args()
     if args.dataset.lower() == 'msvd':

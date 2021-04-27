@@ -17,8 +17,8 @@ mapping = {
     'length': ('pred_length', 'tgt_length'),
 }
 
-base_checkpoint_path = './experiments'	# base path to save checkpoints
-base_data_path = '/home/yangbang/VC_data' # base path to load corpora and features
+base_checkpoint_path = './experiments/bili_partial_dm'	 # base path to save checkpoints
+base_data_path = 'data'  # base path to load corpora and features
 
 # mapping of nltk pos tags
 pos_tag_mapping = {}
@@ -31,9 +31,9 @@ content = [
     [["WP", "EX", "PRP"], "PRON"],
     [["JJ", "JJR", "JJS", "AFX"], "ADJ"],
     [["ADD", "FW", "GW", "LS", "NIL", "XX"], "X"],
-    [["SP", "_SP"], "SPACE"], 
-    [["RB", "RBR", "RBS","WRB"], "ADV"], 
-    [["IN", "RP"], "ADP"], 
+    [["SP", "_SP"], "SPACE"],
+    [["RB", "RBR", "RBS", "WRB"], "ADV"],
+    [["IN", "RP"], "ADP"],
     [["CC"], "CCONJ"],
     [["CD"], "NUM"],
     [["POS", "TO"], "PART"],

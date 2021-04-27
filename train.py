@@ -6,6 +6,7 @@ from misc.utils import set_seed
 from models import get_model
 from misc.run import train_network_all
 import warnings
+
 warnings.filterwarnings('ignore')
 import random
 import pickle
@@ -28,7 +29,7 @@ def get_dir(opt, key, mid_path=''):
 
 def where_to_save_model(opt):
     return os.path.join(
-        Constants.base_checkpoint_path,
+        opt['base_checkpoint_path'],
         opt['dataset'],
         opt['method'],
         opt['scope']
@@ -65,13 +66,13 @@ def main(opt):
 
     # get full paths to load features / corpora
     for key in ['feats_a_name', 'feats_m_name', 'feats_i_name', 'feats_o_name', 'feats_t_name'] \
-        + ['reference_name', 'info_corpus_name']:
+               + ['reference_name', 'info_corpus_name']:
         opt[key[:-5]] = get_dir(opt, key, 'feats' if 'feats' in key else '')
         opt.pop(key)
 
     # the assignment of 'vocab_size' should be done before defining the model
     opt['vocab_size'] = len(pickle.load(open(opt['info_corpus'], 'rb'))['info']['itow'].keys())
-    
+
     # save training settings
     opt_json = os.path.join(opt["checkpoint_path"], 'opt_info.json')
     with open(opt_json, 'w') as f:

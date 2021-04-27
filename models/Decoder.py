@@ -6,9 +6,11 @@ from torch.nn import Parameter
 
 __all__ = ('BertDecoder', 'BertDecoderDisentangled')
 
+
 def get_non_pad_mask(seq):
     assert seq.dim() == 2
     return seq.ne(Constants.PAD).type(torch.float).unsqueeze(-1)
+
 
 def get_attn_key_pad_mask(seq_k, seq_q):
     ''' For masking out the padding part of key sequence. '''
@@ -19,6 +21,7 @@ def get_attn_key_pad_mask(seq_k, seq_q):
     padding_mask = padding_mask.unsqueeze(1).expand(-1, len_q, -1)  # b x lq x lk
 
     return padding_mask
+
 
 def get_subsequent_mask(seq, watch=0):
     ''' For masking out the subsequent info. '''
@@ -37,6 +40,7 @@ def get_subsequent_mask(seq, watch=0):
     subsequent_mask = subsequent_mask.unsqueeze(0).expand(sz_b, -1, -1)  # b x ls x ls
 
     return subsequent_mask
+
 
 def resampling(source, tgt_tokens):
     pad_mask = tgt_tokens.eq(Constants.PAD)

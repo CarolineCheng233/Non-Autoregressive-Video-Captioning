@@ -2,6 +2,7 @@ import argparse
 from config import Constants
 import os
 
+
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--dataset', type=str, default='MSRVTT', help='MSRVTT | Youtube2Text')
@@ -11,7 +12,7 @@ def parse_opt():
     parser.add_argument('-field', '--field', nargs='+', type=str, default=['seed'])
     parser.add_argument('--no_cuda', default=False, action='store_true')
     parser.add_argument('--method', type=str, default='', help='ARB: autoregressive baseline \n'
-                                                                'ARB2: ARB + visual word generation')
+                                                               'ARB2: ARB + visual word generation')
 
     parser.add_argument('--encoder', type=str, default='Encoder_HighWay', help='specify the encoder if we want')
     parser.add_argument('--decoder', type=str, default='BertDecoder', help='specify the decoder if we want')
@@ -31,34 +32,36 @@ def parse_opt():
     model.add_argument('--layer_norm_eps', type=float, default=0.00001)
     model.add_argument('--watch', type=int, default=0)
     model.add_argument('--pos_attention', default=False, action='store_true')
-    model.add_argument('--enhance_input', type=int, default=2, 
-                        help='for NA decoding, 0: without R | 1: re-sampling(R)) | 2: meanpooling(R)')
+    model.add_argument('--enhance_input', type=int, default=2,
+                       help='for NA decoding, 0: without R | 1: re-sampling(R)) | 2: meanpooling(R)')
     model.add_argument('--with_layernorm', default=False, action='store_true')
-    
+
     model.add_argument('-wc', '--with_category', default=False, action='store_true',
                        help='specified for the MSRVTT dataset, use category tags or not')
     model.add_argument('--num_category', type=int, default=20)
 
-    model.add_argument('--encoder_dropout', type=float, default=0.5, 
-                        help='strength of dropout in the encoder')
-    model.add_argument('--no_encoder_bn', default=False, action='store_true', 
-                        help='by default, a BN layer is placed after the encoder outputs of a modality')
+    model.add_argument('--encoder_dropout', type=float, default=0.5,
+                       help='strength of dropout in the encoder')
+    model.add_argument('--no_encoder_bn', default=False, action='store_true',
+                       help='by default, a BN layer is placed after the encoder outputs of a modality')
     model.add_argument('--norm_type', type=str, default='bn')
-    model.add_argument('--dim_word', type=int, default=512, 
-                        help='the embedding size of each token in the vocabulary')
-    model.add_argument('-tie', '--tie_weights', default=False, action='store_true', 
-                        help='share the weights between word embeddings and the projection layer')
+    model.add_argument('--dim_word', type=int, default=512,
+                       help='the embedding size of each token in the vocabulary')
+    model.add_argument('-tie', '--tie_weights', default=False, action='store_true',
+                       help='share the weights between word embeddings and the projection layer')
 
     training = parser.add_argument_group(title='Training Parameters')
     training.add_argument('--seed', default=0, type=int, help='for reproducibility')
     training.add_argument('--learning_rate', default=5e-4, type=float, help='the initial larning rate')
     training.add_argument('--decay', default=0.9, type=float, help='the decay rate of learning rate per epoch')
     training.add_argument('--minimum_learning_rate', default=5e-5, type=float, help='the minimum learning rate')
-    training.add_argument('--n_warmup_steps', type=int, default=0, help='the number of warmup steps towards the initial lr')
+    training.add_argument('--n_warmup_steps', type=int, default=0,
+                          help='the number of warmup steps towards the initial lr')
     training.add_argument('--optim', type=str, default='adam', help='adam | rmsprop')
     training.add_argument('--grad_clip', type=float, default=5, help='clip gradients at this value')
     training.add_argument('--weight_decay', type=float, default=5e-4, help='Strength of weight regularization')
     training.add_argument('-e', '--epochs', type=int, default=50, help='number of epochs')
+    training.add_argument('--start_epoch', type=int, default=0, help='start epoch')
     training.add_argument('-b', '--batch_size', type=int, default=64, help='minibatch size')
 
     training.add_argument('--pretrained_path', default='', type=str, help='path for the pretrained model')
@@ -67,7 +70,7 @@ def parse_opt():
     training.add_argument('--beta', nargs='+', type=float, default=[0, 1],
                           help='len=2, [lowest masking ratio, highest masking ratio]')
     training.add_argument('--visual_word_generation', default=False, action='store_true')
-    training.add_argument('--demand', nargs='+', type=str, default=['VERB', 'NOUN'], 
+    training.add_argument('--demand', nargs='+', type=str, default=['VERB', 'NOUN'],
                           help='pos_tag we want to focus on when training with visual word generation')
     training.add_argument('-nvw', '--nv_weights', nargs='+', type=float, default=[0.8, 1.0],
                           help='len=2, weights of visual word generation and caption generation (or mlm)')
@@ -78,18 +81,19 @@ def parse_opt():
     evaluation = parser.add_argument_group(title='Evaluation Parameters')
     evaluation.add_argument('-see', '--start_eval_epoch', type=int, default=0,
                             help='start evaluation after a specific epoch')
-    evaluation.add_argument('--tolerence', type=int, default=1000, 
+    evaluation.add_argument('--tolerence', type=int, default=1000,
                             help='for early stop')
     evaluation.add_argument('--metric_sum', nargs='+', type=int, default=[1, 1, 1, 1],
                             help='meta sum of the metrics')
-    evaluation.add_argument('--standard', nargs='+', type=str, default=['Bleu_4', 'METEOR', 'CIDEr'], #['Bleu_4', 'METEOR', 'ROUGE_L', 'CIDEr'],
+    evaluation.add_argument('--standard', nargs='+', type=str, default=['Bleu_4', 'METEOR', 'CIDEr'],
+                            # ['Bleu_4', 'METEOR', 'ROUGE_L', 'CIDEr'],
                             help='the standard of performance to select the best model')
     evaluation.add_argument('-bs', '--beam_size', type=int, default=1,
                             help='specified for AR decoding, the number of candidates')
     evaluation.add_argument('-ba', '--beam_alpha', type=float, default=1.0,
                             help='the preference of sentence length, larger --> longer')
     # NA decoding
-    evaluation.add_argument('--paradigm', type=str, default='mp', 
+    evaluation.add_argument('--paradigm', type=str, default='mp',
                             help='mp: MaskPredict | l2r: Left2Right | ef: EasyFirst')
     evaluation.add_argument('-lbs', '--length_beam_size', type=int, default=6,
                             help='specified for NA decoding, the number of length candidates')
@@ -99,9 +103,10 @@ def parse_opt():
                             help='the number of tokens to update for L2R & EF algorithms')
     evaluation.add_argument('--q_iterations', type=int, default=1,
                             help='the number of iterations for L2R & EF algorithms')
-    evaluation.add_argument('--use_ct', default=False, action='store_true', 
+    evaluation.add_argument('--use_ct', default=False, action='store_true',
                             help='use coarse-grained templates or not, only for methods with visual word generation')
     # checkpoint settings
+    evaluation.add_argument('--base_checkpoint_path', type=str, help='experiments dir')
     evaluation.add_argument('--k_best_model', type=int, default=1,
                             help='checkpoints with top-k performance will be saved')
     evaluation.add_argument('--save_checkpoint_every', type=int, default=1,
@@ -114,14 +119,14 @@ def parse_opt():
 
     dataloader = parser.add_argument_group(title='Dataloader Parameters')
     dataloader.add_argument('--n_frames', type=int, default=8, help='the number of frames to represent a whole video')
-    dataloader.add_argument('--n_caps_per_video', type=int, default=0, 
+    dataloader.add_argument('--n_caps_per_video', type=int, default=0,
                             help='the number of captions per video to constitute the training set')
-    dataloader.add_argument('--random_type', type=str, default='segment_random', 
+    dataloader.add_argument('--random_type', type=str, default='segment_random',
                             help='sampling strategy during training: segment_random (default) | all_random | equally_sampling')
-    dataloader.add_argument('--load_feats_type', type=int, default=1, 
+    dataloader.add_argument('--load_feats_type', type=int, default=1,
                             help='load feats from the same frame_ids (0) '
-                            'or different frame_ids (1), '
-                            'or directly load all feats without sampling (2)')
+                                 'or different frame_ids (1), '
+                                 'or directly load all feats without sampling (2)')
 
     # modality information
     dataloader.add_argument('--dim_a', type=int, default=1, help='feature dimension of the audio modality')
@@ -130,7 +135,10 @@ def parse_opt():
     dataloader.add_argument('--dim_o', type=int, default=1, help='feature dimension of the object modality')
     dataloader.add_argument('--dim_t', type=int, default=1)
     dataloader.add_argument('--feats_a_name', nargs='+', type=str, default=[])
-    dataloader.add_argument('--feats_m_name', nargs='+', type=str, default=['motion_resnext101_kinetics_duration16_overlap8.hdf5'])
+    # dataloader.add_argument('--feats_m_name', nargs='+', type=str,
+    #                         default=['motion_resnext101_kinetics_duration16_overlap8.hdf5'])
+    dataloader.add_argument('--feats_m_name', nargs='+', type=str,
+                            default=[])
     dataloader.add_argument('--feats_i_name', nargs='+', type=str, default=['image_resnet101_imagenet_fps_max60.hdf5'])
     dataloader.add_argument('--feats_o_name', nargs='+', type=str, default=[])
     dataloader.add_argument('--feats_t_name', nargs='+', type=str, default=[])
@@ -151,12 +159,13 @@ def check_valid(args):
         assert args.scope, \
             "Please add the argument \'--scope $folder_name_to_save_models\'"
 
+
 def check_dataset(args):
     if args.dataset.lower() == 'msvd':
         args.dataset = 'Youtube2Text'
-    
-    assert args.dataset in ['Youtube2Text', 'MSRVTT'], \
-        "We now only support Youtube2Text (MSVD) and MSRVTT datasets."
+
+    assert args.dataset in ['Youtube2Text', 'MSRVTT', 'vatex'], \
+        "We now only support Youtube2Text (MSVD) MSRVTT and vatex datasets."
 
     if args.default:
         if args.dataset == 'Youtube2Text':
@@ -167,7 +176,7 @@ def check_dataset(args):
             args.beta = [0.35, 0.9]
             args.max_len = 30
             args.with_category = True
-    
+
     if args.dataset == 'Youtube2Text':
         assert not args.with_category, \
             "Category information is not available in the Youtube2Text (MSVD) dataset"
@@ -181,7 +190,7 @@ def check_method(args):
             "The method {} can not be found in ./config/methods.yaml".format(args.method)
         for k, v in methods[args.method].items():
             setattr(args, k, v)
-    
+
     if args.decoding_type == 'NARFormer':
         args.crit = ['lang', 'length']
         args.crit_name = ['Cap Loss', 'Length Loss']
@@ -199,7 +208,7 @@ def check_method(args):
             args.beam_alpha = 1.35 if args.dataset == 'MSRVTT' else 1.0
             args.algorithm_print_sent = True
             args.teacher_path = os.path.join(
-                Constants.base_checkpoint_path,
+                args.base_checkpoint_path,
                 args.dataset,
                 'ARB',
                 args.scope,

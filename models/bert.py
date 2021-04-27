@@ -6,11 +6,14 @@ from torch import nn
 import torch.nn.functional as F
 from config import Constants
 
+
 def gelu(x):
     return x * 0.5 * (1.0 + torch.erf(x / math.sqrt(2.0)))
 
+
 def gelu_new(x):
     return 0.5 * x * (1 + torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3))))
+
 
 def swish(x):
     return x * torch.sigmoid(x)
@@ -53,7 +56,6 @@ class BertEmbeddings(nn.Module):
             self.word_embeddings_prj = nn.Linear(768, config.dim_hidden)
         else:
             self.word_embeddings = nn.Embedding(config.vocab_size, config.dim_hidden, padding_idx=Constants.PAD)
-
 
         self.position_embeddings = nn.Embedding(config.max_len, config.dim_hidden)
         self.category_embeddings = nn.Embedding(config.num_category, config.dim_hidden) if config.with_category else None
@@ -134,7 +136,6 @@ class BertSelfAttention(nn.Module):
 
         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
         self.use_sigmoid_to_get_attprob = getattr(config, 'use_sigmoid_to_get_attprob', False)
-
 
     def forward(self, q, k, v, attention_mask, head_mask=None, output_attentions=False):
         d_k, d_v, n_head = self.attention_head_size, self.attention_head_size, self.num_attention_heads

@@ -6,6 +6,7 @@ __all__ = (
     'Encoder_HighWay',
 )
 
+
 class HighWay(nn.Module):
     def __init__(self, hidden_size, with_gate=True):
         super(HighWay, self).__init__()
@@ -23,6 +24,7 @@ class HighWay(nn.Module):
             return gate * x + (1 - gate) * y
         else:
             return x + y
+        
 
 class MultipleStreams(nn.Module):
     def __init__(self, opt, module_func, is_rnn=False):
@@ -62,5 +64,5 @@ class MultipleStreams(nn.Module):
 class Encoder_HighWay(MultipleStreams):
     def __init__(self, opt):
         with_gate = opt.get('gate', True)
-        module_func = lambda x,y,z: nn.Sequential(nn.Linear(x, y), HighWay(y, with_gate), nn.Dropout(z))
+        module_func = lambda x, y, z: nn.Sequential(nn.Linear(x, y), HighWay(y, with_gate), nn.Dropout(z))
         super(Encoder_HighWay, self).__init__(opt, module_func)

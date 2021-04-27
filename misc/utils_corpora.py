@@ -5,6 +5,7 @@ import string
 import nltk
 from collections import defaultdict
 import os
+import os.path as osp
 import wget
 import pickle
 import numpy as np
@@ -114,6 +115,53 @@ def preprocess_Youtube2Text(base_path):
     }
 
 
+def preprocess_vatex(base_path):
+    train_ann_file = osp.join(base_path, 'vatex_training_v1.0.json')
+    val_ann_file = osp.join(base_path, 'vatex_validation_v1.0.json')
+    name2idx = dict()
+    split = {'train': [], 'validate': []}
+    raw_caps_all = defaultdict(list)
+    raw_caps_train = defaultdict(list)
+    references = defaultdict(list)
+    with open(train_ann_file, 'r', encoding='utf-8') as f:
+        video_infos = json.load(f)
+        for video_info in video_infos:
+            videoID = video_info['videoID']
+            name2idx[videoID] = len(name2idx)
+            split['train'].append(name2idx[videoID])
+            vid = 'video' + str(name2idx[videoID])
+            for sentence in video_info['chCap']:
+                tokens = [word for word in sentence if word not in string.punctuation]
+                raw_caps_train['video'+str(name2idx[videoID])].append(tokens)
+                raw_caps_all['video'+str(name2idx[videoID])].append(tokens)
+                references[vid].append({
+                    'image_id': vid,
+                    'cap_id': len(references[vid]),
+                    'caption': ' '.join(tokens)
+                })
+    with open(val_ann_file, 'r', encoding='utf-8') as f:
+        video_infos = json.load(f)
+        for video_info in video_infos:
+            videoID = video_info['videoID']
+            name2idx[videoID] = len(name2idx)
+            split['validate'].append(name2idx[videoID])
+            vid = 'video' + str(name2idx[videoID])
+            for sentence in video_info['chCap']:
+                tokens = [word for word in sentence if word not in string.punctuation]
+                raw_caps_all['video'+str(name2idx[videoID])].append(tokens)
+                references[vid].append({
+                    'image_id': vid,
+                    'cap_id': len(references[vid]),
+                    'caption': ' '.join(tokens)
+                })
+    return {
+        'split': split,
+        'raw_caps_train': raw_caps_train,
+        'raw_caps_all': raw_caps_all,
+        'references': references
+    }
+
+
 def build_vocab(train_vid2caps, count_thr, sort_vocab=False):
     '''
         args:
@@ -170,6 +218,7 @@ def get_length_info(captions):
 
 
 def get_captions_and_pos_tags(raw_caps_all, vocab):
+    nltk.download('averaged_perceptron_tagger')
     itow = {i + 6: w for i, w in enumerate(vocab)}
     itow[Constants.PAD] = Constants.PAD_WORD
     itow[Constants.UNK] = Constants.UNK_WORD

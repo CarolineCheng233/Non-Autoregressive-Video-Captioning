@@ -4,7 +4,6 @@ from tqdm import tqdm
 import os
 from misc.run import get_loader, run_eval
 from misc.logger import CsvLogger
-from config import Constants
 from misc.utils import load_model_and_opt, get_dict_mapping
 from tensorboardX import SummaryWriter
 import shutil
@@ -25,18 +24,18 @@ def prepare_collect_config(option, opt):
         names.append(('%s' % ('CT' if option['use_ct'] else '')) + option['paradigm'])
         if option['paradigm'] == 'mp':
             parameter = 'i%db%da%03d.pkl' % (
-                option['iterations'], 
-                option['length_beam_size'], 
-                int(100*option['beam_alpha'])
-            ) 
+                option['iterations'],
+                option['length_beam_size'],
+                int(100 * option['beam_alpha'])
+            )
         else:
             parameter = 'q%dqi%db%da%03d.pkl' % (
-                option['q'], 
-                option['q_iterations'], 
-                option['length_beam_size'], 
-                int(100*option['beam_alpha'])
+                option['q'],
+                option['q_iterations'],
+                option['length_beam_size'],
+                int(100 * option['beam_alpha'])
             )
-    
+
     filename = '_'.join(names + [parameter])
     opt.collect_path = os.path.join(opt.collect_path, filename)
 
@@ -71,7 +70,7 @@ def main():
     parser.add_argument('-ncd', '--no_candidate_decision', default=False, action='store_true')
     parser.add_argument('--algorithm_print_sent', default=False, action='store_true')
 
-    parser.add_argument('-batch_size', '--batch_size', type=int, default=128)
+    parser.add_argument('-batch_size', '--batch_size', type=int, default=64)
     parser.add_argument('-no_cuda', action='store_true')
     parser.add_argument('-em', '--evaluation_mode', type=str, default='test')
     parser.add_argument('-print_sent', action='store_true')
@@ -81,7 +80,7 @@ def main():
     parser.add_argument('-analyze', default=False, action='store_true')
 
     parser.add_argument('-latency', default=False, action='store_true')
-    
+
     parser.add_argument('-specific', default=-1, type=int)
     parser.add_argument('-collect_path', type=str, default='./collected_captions')
     parser.add_argument('-collect', default=False, action='store_true')
@@ -97,7 +96,7 @@ def main():
         if opt.dataset.lower() == 'msvd':
             opt.dataset = 'Youtube2Text'
         opt.model_path = os.path.join(
-            Constants.base_checkpoint_path,
+            opt.base_checkpoint_path,
             opt.dataset,
             opt.method,
             opt.scope,
@@ -105,7 +104,7 @@ def main():
         )
         if opt.method in ['NAB', 'NACF']:
             opt.teacher_path = os.path.join(
-                Constants.base_checkpoint_path,
+                opt.base_checkpoint_path,
                 opt.dataset,
                 'ARB',
                 opt.scope,
@@ -142,7 +141,7 @@ def main():
             option['q'] = 1
             option['q_iterations'] = 1 if opt.use_ct else 0
         option['use_ct'] = opt.use_ct
-    
+
     if opt.collect:
         prepare_collect_config(option, opt)
 
@@ -156,7 +155,7 @@ def main():
     else:
         modes = [opt.evaluation_mode]
         csv_filenames = ['validation_record.csv' if opt.evaluation_mode == 'validate' else 'testing_record.csv']
-    
+
     crit = get_criterion_during_evaluation(option)
 
     for mode, csv_filename in zip(modes, csv_filenames):
@@ -168,36 +167,35 @@ def main():
         else:
             summarywriter = None
 
-        metric = run_eval(option, model, crit, loader, vocab, device, 
-            teacher_model=teacher_model,
-            dict_mapping=dict_mapping,
-            json_path=opt.json_path, 
-            json_name=opt.json_name, 
-            print_sent=opt.print_sent, 
-            no_score=opt.no_score,  
-            analyze=True if opt.record else opt.analyze, 
-            collect_best_candidate_iterative_results=True if opt.collect else False,
-            collect_path=opt.collect_path,
-            summarywriter=summarywriter,
-            global_step=option['seed']
-        )
-        
+        metric = run_eval(option, model, crit, loader, vocab, device,
+                          teacher_model=teacher_model,
+                          dict_mapping=dict_mapping,
+                          json_path=opt.json_path,
+                          json_name=opt.json_name,
+                          print_sent=opt.print_sent,
+                          no_score=opt.no_score,
+                          analyze=True if opt.record else opt.analyze,
+                          collect_best_candidate_iterative_results=True if opt.collect else False,
+                          collect_path=opt.collect_path,
+                          summarywriter=summarywriter,
+                          global_step=option['seed'])
+
         print(metric)
         if opt.record:
             fieldsnames = ['Bleu_1', 'Bleu_2', 'Bleu_3', 'Bleu_4',
-                            'METEOR', 'ROUGE_L', 'CIDEr', 'Sum', 
-                            'ave_length', 'novel', 'unique', 'usage']
+                           'METEOR', 'ROUGE_L', 'CIDEr', 'Sum',
+                           'ave_length', 'novel', 'unique', 'usage']
             if crit is not None:
                 fieldsnames += crit.get_fieldsnames()
             logger = CsvLogger(filepath=option['checkpoint_path'], filename=csv_filename,
-                                    fieldsnames=fieldsnames + opt.field)
+                               fieldsnames=fieldsnames + opt.field)
             if 'loss' in metric:
                 metric.pop('loss')
 
             for key in opt.field:
                 metric[key] = option[key]
             logger.write(metric)
-                
+
 
 if __name__ == "__main__":
     main()

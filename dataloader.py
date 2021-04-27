@@ -18,20 +18,20 @@ import threading
 
 
 def resampling(source_length, target_length):
-    return [round(i * (source_length-1) / (target_length-1)) for i in range(target_length)]
+    return [round(i * (source_length - 1) / (target_length - 1)) for i in range(target_length)]
 
 
 def get_frame_ids(n_total_frames, n_frames, random_type):
     if random_type == 'all_random':
         idx = random.sample([i for i in range(n_total_frames)], n_frames)
     else:
-        bound = [int(i) for i in np.linspace(0, n_total_frames, n_frames+1)]
+        bound = [int(i) for i in np.linspace(0, n_total_frames, n_frames + 1)]
         idx = []
         for i in range(n_frames):
             if random_type == 'equally_sampling':
-                tmp = (bound[i] + bound[i+1]) // 2
+                tmp = (bound[i] + bound[i + 1]) // 2
             else:
-                tmp = np.random.randint(bound[i], bound[i+1])
+                tmp = np.random.randint(bound[i], bound[i + 1])
             idx.append(tmp)
 
     return sorted(idx)
@@ -56,9 +56,9 @@ class VideoDataset(Dataset):
         self.captions = data['captions']
         self.pos_tags = data['pos_tags']
 
-        info = data['info']    
+        info = data['info']
         self.itow = info['itow']
-        self.itoc = info.get('itoc', None)        
+        self.itoc = info.get('itoc', None)
         self.itop = info.get('itop', None)
         self.length_info = info['length_info']
         self.splits = info['split']
@@ -71,7 +71,7 @@ class VideoDataset(Dataset):
         self.infoset = self._make_infoset()
         if print_info:
             self.print_info()
-    
+
     def print_info(self):
         print('Dataset Information:')
         print('- size of the training   set:', len(self.splits['train']))
@@ -79,7 +79,7 @@ class VideoDataset(Dataset):
         print('- size of the testing    set:', len(self.splits['test']))
         print('- vocab size is', len(self.itow))
         print('- maximum sequence length (\'max_len\') is set to', self.opt['max_len'])
-        
+
         print('Modality Information:')
         for char in self.opt['modality'].lower():
             print('- loading feats_{} ({}) from {}'.format(
@@ -102,8 +102,8 @@ class VideoDataset(Dataset):
 
     def shuffle(self):
         if self.n_caps_per_video == 0:
-            # random.shuffle(self.infoset)
-            pass
+            random.shuffle(self.infoset)
+            # pass
         else:
             self.infoset = self._make_infoset()
 
@@ -111,7 +111,7 @@ class VideoDataset(Dataset):
         if getattr(self, 'references', None) is None:
             self.references = pickle.load(open(self.opt['reference'], 'rb'))
         return [item['caption'] for item in self.references[vid]]
-    
+
     def get_specific_data_with_vid_and_cap_id(self, vid, cap_id, device='cpu'):
         data = self._prepare_video_features(vid)
 
@@ -154,7 +154,6 @@ class VideoDataset(Dataset):
         else:
             # we evaluate all examples regardless of categories
             ix_set = [int(item) for item in self.splits[self.mode]]
-
         for ix in ix_set:
             vid = 'video%d' % ix
             category = self.itoc[ix] if self.itoc is not None else 0
@@ -173,7 +172,7 @@ class VideoDataset(Dataset):
                     length_target += [0] * (self.opt['max_len'] - len(length_target))
 
                 length_target = np.array(length_target) / sum(length_target)
-            
+
             # decide which captions are used to calculate training/evaluation loss
             if self.n_caps_per_video == 0:
                 cap_id_set = [i for i in range(len(captions))]
@@ -182,11 +181,11 @@ class VideoDataset(Dataset):
             else:
                 n_caps_per_video = min(len(captions), self.n_caps_per_video)
                 cap_id_set = self.random.choice(
-                    [i for i in range(len(captions))], 
+                    [i for i in range(len(captions))],
                     n_caps_per_video,
                     replace=False
                 )
-            
+
             for cap_id in cap_id_set:
                 item = {
                     'vid': vid,
@@ -195,7 +194,7 @@ class VideoDataset(Dataset):
                     'category': category,
                     'length_target': length_target,
                     'cap_id': cap_id,
-                    }
+                }
                 infoset.append(item)
 
         return infoset
@@ -209,9 +208,9 @@ class VideoDataset(Dataset):
 
         data.update(self._prepare_video_features(vid))
         data.update(self._prepare_input_ids(cap_id, labels, taggings))
-        
+
         # some auxiliary information
-        data['length_target'] = torch.FloatTensor(self.infoset[ix]['length_target'])        
+        data['length_target'] = torch.FloatTensor(self.infoset[ix]['length_target'])
         data['category'] = torch.LongTensor([self.infoset[ix]['category']])
 
         return data
@@ -221,10 +220,10 @@ class VideoDataset(Dataset):
 
     def _prepare_video_features(self, vid):
         _dict = {'video_ids': vid}
-        
+
         frame_ids = get_frame_ids(
             self.opt.get('n_total_frames', 60),
-            self.opt['n_frames'], 
+            self.opt['n_frames'],
             self.random_type
         ) if self.opt['load_feats_type'] == 0 else None
 
@@ -243,7 +242,7 @@ class VideoDataset(Dataset):
 
         results = self._make_source_target(labels, taggings)
         tokens, labels, taggings = map(
-            lambda x: results[x], 
+            lambda x: results[x],
             ["dec_source", "dec_target", "tagging"]
         )
         tokens_1 = results.get('dec_source_1', None)
@@ -300,9 +299,9 @@ class VideoDataset(Dataset):
             source_length = feats.shape[0]
             if source_length >= self.opt['n_frames']:
                 frame_ids = get_frame_ids(
-                        source_length, 
-                        self.opt['n_frames'], 
-                        self.random_type)
+                    source_length,
+                    self.opt['n_frames'],
+                    self.random_type)
             else:
                 frame_ids = resampling(source_length, max_seq_len)
         else:
@@ -328,11 +327,11 @@ class VideoDataset(Dataset):
 
     def _make_source_target(self, target, tagging):
         if self.opt['decoding_type'] == 'NARFormer':
-            results = self._source_target_mlm(target[1:-1]) # exclude <bos> <eos>
+            results = self._source_target_mlm(target[1:-1])  # exclude <bos> <eos>
         else:
             # ARFormer
             results = {
-                'dec_source': self._padding(target, add_eos=True), 
+                'dec_source': self._padding(target, add_eos=True),
                 'dec_target': self._padding(target, add_eos=True)
             }
 
@@ -359,31 +358,31 @@ class VideoDataset(Dataset):
 
         if self.mode == 'train':
             if min_num_masks >= len(dec_source):
-                ind = np.array([],dtype=np.uint8)
+                ind = np.array([], dtype=np.uint8)
             else:
                 low = max(int(len(dec_source) * beta_low), min_num_masks)
                 high = max(int(len(dec_source) * beta_high), min_num_masks)
                 if high == low:
                     high += 1
                 sample_size = self.random.randint(low, high)
-                ind = self.random.choice(len(dec_source) , size=sample_size, replace=False)
-            
+                ind = self.random.choice(len(dec_source), size=sample_size, replace=False)
+
             if len(ind):
                 dec_source[ind] = Constants.MASK
                 dec_target[ind] = dec_target_cp[ind]
         else:
-            dec_source[dec_source!=Constants.PAD] = Constants.MASK
-            dec_target = dec_target_cp           
+            dec_source[dec_source != Constants.PAD] = Constants.MASK
+            dec_target = dec_target_cp
 
         dec_source = self._padding(dec_source.tolist(), add_eos=False)
         dec_target = self._padding(dec_target.tolist(), add_eos=False)
-        
+
         return {'dec_source': dec_source, 'dec_target': dec_target}
 
     def _source_target_visual_word(self, **kwargs):
         target = kwargs['target']
         pos_tag = kwargs['pos_tag']
-        sent_length = len(target[1:-1]) # exclude <bos> <eos>
+        sent_length = len(target[1:-1])  # exclude <bos> <eos>
 
         visual_tag = Constants.VIS
         target_tag = Constants.MASK
@@ -396,20 +395,20 @@ class VideoDataset(Dataset):
             assert self.itop is not None
 
             dec_source_1 = self._padding(
-                [visual_tag] * (sent_length if self.opt['decoding_type'] == 'NARFormer' else len(target)), 
+                [visual_tag] * (sent_length if self.opt['decoding_type'] == 'NARFormer' else len(target)),
                 add_eos=False if self.opt['decoding_type'] == 'NARFormer' else True
             )
 
             # get the position of tokens that have the pos_tag we demand
             pos_satisfied_ind = []
             for i, item in enumerate(pos_tag[1:-1]):
-                w = self.itow[target[i+1]]
+                w = self.itow[target[i + 1]]
                 # we ignore verb ``be''
                 if self.itop[item] in self.opt['demand'] and w not in ['is', 'are', 'was', 'were', 'be']:
                     pos_satisfied_ind.append(i)
 
             pos_satisfied_ind = np.array(pos_satisfied_ind)
-            
+
             # decoder1 need to predict tokens with satisfied pos_tag from scratch
             # meanwhile, decoder1 should learn to keep the remaining tokens (i.e., <mask>) unchanged
             dec_target_1 = torch.LongTensor([target_tag] * sent_length)

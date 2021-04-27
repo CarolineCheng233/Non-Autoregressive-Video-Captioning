@@ -1,5 +1,6 @@
 import torch.optim as optim
 
+
 class ScheduledOptim():
     '''A simple wrapper class for learning rate scheduling'''
 
@@ -47,6 +48,7 @@ class ScheduledOptim():
 
     def get_lr(self):
         return self.lr
+
 
 def get_optimizer(opt, model, summarywriter=None):
     optim_mapping = {
