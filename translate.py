@@ -159,7 +159,6 @@ def main():
 
     crit = get_criterion_during_evaluation(option)
 
-    import pdb; pdb.set_trace()
     for mode, csv_filename in zip(modes, csv_filenames):
         loader = get_loader(option, mode=mode, print_info=True, specific=opt.specific, batch_size=opt.batch_size)
         vocab = loader.dataset.get_vocab()

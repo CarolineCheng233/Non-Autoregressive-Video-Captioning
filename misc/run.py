@@ -131,7 +131,6 @@ def run_eval(
         with torch.no_grad():
             encoder_outputs, category, labels = get_forword_results(opt, model, data, device=device, only_data=True,
                                                                     vocab=vocab)
-            import pdb; pdb.set_trace()
             if crit is not None:
                 _ = crit.get_loss(encoder_outputs)
 
@@ -202,8 +201,6 @@ def run_eval(
                     best_candidate_sents[video_id].append(sent)
                     best_candidate_score[video_id].append(score)
         pb.update()
-
-    import pdb; pdb.set_trace()
 
     if collect_best_candidate_iterative_results:
         assert collect_path is not None
