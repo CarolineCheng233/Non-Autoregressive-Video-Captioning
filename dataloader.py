@@ -76,7 +76,7 @@ class VideoDataset(Dataset):
         print('Dataset Information:')
         print('- size of the training   set:', len(self.splits['train']))
         print('- size of the validation set:', len(self.splits['validate']))
-        print('- size of the testing    set:', len(self.splits['test']))
+        # print('- size of the testing    set:', len(self.splits['test']))
         print('- vocab size is', len(self.itow))
         print('- maximum sequence length (\'max_len\') is set to', self.opt['max_len'])
 
