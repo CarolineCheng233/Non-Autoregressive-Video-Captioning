@@ -308,6 +308,7 @@ def train_network_all(opt, model, device, **kwargs):
     train_loader = get_loader(opt, 'train', print_info=False, **kwargs)
     vali_loader = get_loader(opt, 'validate', print_info=False)
     # test_loader = get_loader(opt, 'test', print_info=False)
+    import pdb; pdb.set_trace()
     vocab = vali_loader.dataset.get_vocab()
 
     logger = CsvLogger(
