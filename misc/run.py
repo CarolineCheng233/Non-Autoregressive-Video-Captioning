@@ -224,8 +224,8 @@ def run_eval(
         res.update({'ave_length': ave_length, 'novel': novel, 'unique': unique, 'usage': usage, 'gram4': gram4})
 
     if not no_score:
-        with suppress_stdout_stderr():
-            valid_score, detail_scores = scorer.score(gt_captions, pred_captions, pred_captions.keys())
+        # with suppress_stdout_stderr():
+        valid_score, detail_scores = scorer.score(gt_captions, pred_captions, pred_captions.keys())
 
         res.update(valid_score)
         metric_sum = opt.get('metric_sum', [1, 1, 1, 1])
@@ -308,7 +308,6 @@ def train_network_all(opt, model, device, **kwargs):
     train_loader = get_loader(opt, 'train', print_info=False, **kwargs)
     vali_loader = get_loader(opt, 'validate', print_info=False)
     # test_loader = get_loader(opt, 'test', print_info=False)
-    import pdb; pdb.set_trace()
     vocab = vali_loader.dataset.get_vocab()
 
     logger = CsvLogger(
