@@ -4,6 +4,7 @@ from tqdm import tqdm
 import numpy as np
 import torch.nn.functional as F
 
+
 def generate_step_with_prob(out, zeros=[]):
     probs = F.softmax(out, dim=-1)
     for item in zeros:
@@ -14,6 +15,7 @@ def generate_step_with_prob(out, zeros=[]):
     max_probs, idx = probs.max(dim=-1)
     return idx, max_probs, probs
 
+
 def to_sentence_with_prob(hyp, prob, vocab, break_words=[Constants.PAD], skip_words=[]):
     tokens = []
     for word_id, p in zip(hyp, prob):
@@ -23,6 +25,7 @@ def to_sentence_with_prob(hyp, prob, vocab, break_words=[Constants.PAD], skip_wo
             break
         tokens.append('%12s(%.2f)'%(vocab[word_id], p))
     return ' '.join(tokens)
+
 
 class Algorithm_Base(object):
     """docstring for Algorithm_Base"""
@@ -217,8 +220,10 @@ class Algorithm_Base(object):
     def print_sent(self, tgt_tokens, token_probs, counter, debug=False):
         if self.algorithm_print_sent or debug:
             sample_ind = 0
-            tqdm.write("Iteration %2d: "%counter + \
-                to_sentence_with_prob(tgt_tokens[sample_ind].tolist(), token_probs[sample_ind].tolist(), self.vocab)) 
+            tqdm.write("Iteration %2d: "%counter +
+                       to_sentence_with_prob(tgt_tokens[sample_ind].tolist(),
+                                             token_probs[sample_ind].tolist(),
+                                             self.vocab))
 
 
 class MaskPredict(Algorithm_Base):
@@ -226,7 +231,6 @@ class MaskPredict(Algorithm_Base):
         super().__init__(opt, dict_mapping, tgt_vocab)
         self.use_ct = opt.get('use_ct', False)
         self.T = opt.get('iterations', 5)
-
 
     def generate(self, model, teacher_model, inputs_for_decoder, teacher_inputs_for_decoder, tgt_tokens):
         bsz, seq_len = tgt_tokens.size()
@@ -271,6 +275,7 @@ class MaskPredict(Algorithm_Base):
         corresponding_probs = self.scoring_by_teacher(teacher_model, teacher_inputs_for_decoder, tgt_tokens, pad_mask, is_last=True)
         lprobs = (token_probs * corresponding_probs).log()
         return tgt_tokens, lprobs, self.get_collected_data()
+
 
 class Left2Right(Algorithm_Base):
     def __init__(self, opt, dict_mapping, tgt_vocab):
@@ -395,7 +400,6 @@ class EasyFirst(Algorithm_Base):
             tgt_tokens[most_confidence_ind] = new_tgt_tokens[most_confidence_ind]
             
             self.collect_data(tgt_tokens, token_probs, attentions)
-
         
         for i in range(self.T):
             if i == 0 and self.use_ct:
