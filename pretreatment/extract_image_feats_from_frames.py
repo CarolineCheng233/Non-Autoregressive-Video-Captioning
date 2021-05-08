@@ -89,7 +89,7 @@ if __name__ == '__main__':
         C, H, W = 3, 224, 224
         model = pretrainedmodels.resnet101(pretrained='imagenet')
         backbone = ResNet(pretrained="torchvision://resnet101", depth=101, norm_eval=False)
-        backbone.load_state_dict(params['backbone_path'])
+        backbone.load_state_dict(torch.load(params['backbone_path']))
     elif params['model'] == 'resnet152':
         C, H, W = 3, 224, 224
         model = pretrainedmodels.resnet152(pretrained='imagenet')
