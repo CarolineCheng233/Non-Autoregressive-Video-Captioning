@@ -7,6 +7,7 @@ import shutil
 import argparse
 import glob
 
+
 def extract_frames(video, dst, suffix, strategy, fps, vframes):
     with open(os.devnull, "w") as ffmpeg_log:
         if os.path.exists(dst):
@@ -29,6 +30,7 @@ def extract_frames(video, dst, suffix, strategy, fps, vframes):
                                        '{0}/%05d.{1}'.format(dst, suffix)]
         subprocess.call(video_to_frames_command,
                         stdout=ffmpeg_log, stderr=ffmpeg_log)
+
 
 def run(params):
     if params['info_path']:
@@ -57,7 +59,7 @@ def run(params):
             )
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--video_path", type=str, required=True, help='the path to load all the videos')
     parser.add_argument("--frame_path", type=str, required=True, help='the path to put the extracted frames')
