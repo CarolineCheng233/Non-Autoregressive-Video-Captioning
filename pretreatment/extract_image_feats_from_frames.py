@@ -10,11 +10,7 @@ import h5py
 from torchvision import transforms
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch import Tensor
-import torch.utils.model_zoo as model_zoo
-from PIL import Image
+from .resnet import ResNet
 
 
 def extract_feats(params, model, load_image_fn, C, H, W):
@@ -65,6 +61,8 @@ if __name__ == '__main__':
     parser.add_argument("--feat_path", type=str, required=True, help='the path you want to save the features')
     parser.add_argument("--feat_name", type=str, default='', help='the name of the features file, saved in hdf5 format')
 
+    parser.add_argument('--backbone_path', type=str, required=True)
+
     parser.add_argument("--gpu", type=str, default='0', help='set CUDA_VISIBLE_DEVICES environment variable')
     parser.add_argument("--model", type=str, default='resnet101', help='inceptionresnetv2 | resnet101')
     
@@ -90,6 +88,8 @@ if __name__ == '__main__':
     if params['model'] == 'resnet101':
         C, H, W = 3, 224, 224
         model = pretrainedmodels.resnet101(pretrained='imagenet')
+        backbone = ResNet(pretrained="torchvision://resnet101", depth=101, norm_eval=False)
+        backbone.load_state_dict(params['backbone_path'])
     elif params['model'] == 'resnet152':
         C, H, W = 3, 224, 224
         model = pretrainedmodels.resnet152(pretrained='imagenet')
@@ -107,8 +107,7 @@ if __name__ == '__main__':
         print("doesn't support %s" % (params['model']))
 
     load_image_fn = utils.LoadTransformImage(model)
-    model.last_linear = utils.Identity()
+    # model.last_linear = utils.Identity()
 
-    model = model.cuda()
-    #summary(model, (C, H, W))
-    extract_feats(params, model, load_image_fn, C, H, W)
+    backbone = backbone.cuda()
+    extract_feats(params, backbone, load_image_fn, C, H, W)
