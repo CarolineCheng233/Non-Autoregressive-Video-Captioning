@@ -11,10 +11,14 @@ from torchvision import transforms
 
 import torch
 from .resnet import ResNet
+from .resnet import AvgPool
 
 
 def extract_feats(params, model, load_image_fn, C, H, W):
     model.eval()
+    avgpool = AvgPool()
+    avgpool.cuda()
+    avgpool.eval()
 
     frames_path_list = glob.glob(os.path.join(params['frame_path'], '*'))
     db = h5py.File(params['feat_dir'], 'a')
@@ -45,7 +49,7 @@ def extract_feats(params, model, load_image_fn, C, H, W):
                 images[i] = load_image_fn(image_path)
 
         with torch.no_grad():
-            feats = model(images.cuda())
+            feats = avgpool(model(images.cuda()))
             
         feats = feats.squeeze().cpu().numpy()
 
