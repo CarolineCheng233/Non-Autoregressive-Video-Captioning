@@ -138,7 +138,7 @@ def preprocess_vatex(base_path, lang='en'):
             for sentence in sentences:
                 if lang == 'ch':
                     sentence = ''.join([word for word in sentence if word not in string.punctuation])
-                    tokens = jieba.cut(sentence, cut_all=False)
+                    tokens = ' '.join(jieba.cut(sentence, cut_all=False)).split()
                 else:
                     tokens = [
                         token.lower().rstrip(',.?') for token in sentence.split() \
@@ -164,9 +164,8 @@ def preprocess_vatex(base_path, lang='en'):
                 sentences = video_info['enCap']
             for sentence in sentences:
                 if lang == 'ch':
-                    import pdb; pdb.set_trace()
                     sentence = ''.join([word for word in sentence if word not in string.punctuation])
-                    tokens = jieba.cut(sentence, cut_all=False)
+                    tokens = ' '.join(jieba.cut(sentence, cut_all=False)).split()
                 else:
                     tokens = [
                         token.lower().rstrip(',.?') for token in sentence.split() \
