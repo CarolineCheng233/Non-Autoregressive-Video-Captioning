@@ -162,7 +162,7 @@ def run_eval(
             video_id = video_ids[k]
             if not no_score:
                 assert len(hyps) == 1
-            import pdb; pdb.set_trace()
+
             for j, hyp in enumerate(hyps):
                 sent = to_sentence(hyp, vocab)
                 if opt.get('duplicate', False) and opt['decoding_type'] == 'NARFormer':
