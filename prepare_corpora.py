@@ -22,7 +22,7 @@ def main(args):
     if preprocess_func is None:
         raise ValueError('We can not find the function %s in misc/utils_corpora.py' % func_name)
 
-    results = preprocess_func(args.base_pth)
+    results = preprocess_func(args.base_pth, args.language)
     split = results['split']
     raw_caps_train = results['raw_caps_train']
     raw_caps_all = results['raw_caps_all']
@@ -71,6 +71,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--dataset', default='vatex', type=str)
+    parser.add_argument('-l', '--language', type=str, required=True, choices=['en', 'ch'])
     parser.add_argument('-sort', '--sort_vocab', default=False, action='store_true')
     args = parser.parse_args()
     if args.dataset.lower() == 'msvd':

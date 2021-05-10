@@ -12,7 +12,7 @@ import numpy as np
 import jieba
 
 
-def preprocess_MSRVTT(base_path):
+def preprocess_MSRVTT(base_path, lang='en'):
     os.makedirs(base_path, exist_ok=True)
     # the official url is http://ms-multimedia-challenge.com/2016
     url = "https://github.com/ybCliff/VideoCaptioning/releases/download/v1.0/videodatainfo_2016.json"
@@ -67,7 +67,7 @@ def preprocess_MSRVTT(base_path):
     }
 
 
-def preprocess_Youtube2Text(base_path):
+def preprocess_Youtube2Text(base_path, lang='en'):
     os.makedirs(base_path, exist_ok=True)
 
     # the official url is https://www.cs.utexas.edu/users/ml/clamp/videoDescription
@@ -116,7 +116,7 @@ def preprocess_Youtube2Text(base_path):
     }
 
 
-def preprocess_vatex(base_path):
+def preprocess_vatex(base_path, lang='en'):
     train_ann_file = osp.join(base_path, 'vatex_training_v1.0.json')
     val_ann_file = osp.join(base_path, 'vatex_validation_v1.0.json')
     name2idx = dict()
@@ -131,13 +131,19 @@ def preprocess_vatex(base_path):
             name2idx[videoID] = len(name2idx)
             split['train'].append(name2idx[videoID])
             vid = 'video' + str(name2idx[videoID])
-            for sentence in video_info['chCap']:
-                sentence = ''.join([word for word in sentence if word not in string.punctuation])
-                tokens = jieba.cut(sentence, cut_all=False)
-                # tokens = [
-                #     token.lower() for token in sentence.split() \
-                #     if token not in string.punctuation
-                # ]
+            if lang == 'ch':
+                sentences = video_info['chCap']
+            else:
+                sentences = video_info['enCap']
+            for sentence in sentences:
+                if lang == 'ch':
+                    sentence = ''.join([word for word in sentence if word not in string.punctuation])
+                    tokens = jieba.cut(sentence, cut_all=False)
+                else:
+                    tokens = [
+                        token.lower().rstrip(',.?') for token in sentence.split() \
+                        if token not in string.punctuation
+                    ]
                 raw_caps_train['video'+str(name2idx[videoID])].append(tokens)
                 raw_caps_all['video'+str(name2idx[videoID])].append(tokens)
                 references[vid].append({
@@ -152,13 +158,20 @@ def preprocess_vatex(base_path):
             name2idx[videoID] = len(name2idx)
             split['validate'].append(name2idx[videoID])
             vid = 'video' + str(name2idx[videoID])
-            for sentence in video_info['chCap']:
-                sentence = ''.join([word for word in sentence if word not in string.punctuation])
-                tokens = jieba.cut(sentence, cut_all=False)
-                # tokens = [
-                #     token.lower() for token in sentence.split() \
-                #     if token not in string.punctuation
-                # ]
+            if lang == 'ch':
+                sentences = video_info['chCap']
+            else:
+                sentences = video_info['enCap']
+            for sentence in sentences:
+                if lang == 'ch':
+                    import pdb; pdb.set_trace()
+                    sentence = ''.join([word for word in sentence if word not in string.punctuation])
+                    tokens = jieba.cut(sentence, cut_all=False)
+                else:
+                    tokens = [
+                        token.lower().rstrip(',.?') for token in sentence.split() \
+                        if token not in string.punctuation
+                    ]
                 raw_caps_all['video'+str(name2idx[videoID])].append(tokens)
                 references[vid].append({
                     'image_id': vid,
