@@ -130,7 +130,7 @@ def preprocess_vatex(base_path):
             name2idx[videoID] = len(name2idx)
             split['train'].append(name2idx[videoID])
             vid = 'video' + str(name2idx[videoID])
-            for sentence in video_info['chCap']:
+            for sentence in video_info['enCap']:
                 tokens = [word for word in sentence if word not in string.punctuation]
                 raw_caps_train['video'+str(name2idx[videoID])].append(tokens)
                 raw_caps_all['video'+str(name2idx[videoID])].append(tokens)
@@ -146,7 +146,7 @@ def preprocess_vatex(base_path):
             name2idx[videoID] = len(name2idx)
             split['validate'].append(name2idx[videoID])
             vid = 'video' + str(name2idx[videoID])
-            for sentence in video_info['chCap']:
+            for sentence in video_info['enCap']:
                 tokens = [word for word in sentence if word not in string.punctuation]
                 raw_caps_all['video'+str(name2idx[videoID])].append(tokens)
                 references[vid].append({
