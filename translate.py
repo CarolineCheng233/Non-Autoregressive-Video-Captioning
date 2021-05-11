@@ -36,7 +36,7 @@ def prepare_collect_config(option, opt):
                 int(100 * option['beam_alpha'])
             )
 
-    filename = '_'.join(names + [parameter])
+    filename = '_'.join(names + [parameter] + [opt.pretrain])
     opt.collect_path = os.path.join(opt.collect_path, filename)
 
 
@@ -51,6 +51,8 @@ def main():
     parser.add_argument('-record', '--record', default=False, action='store_true')
     parser.add_argument('-field', '--field', nargs='+', type=str, default=['seed'])
     parser.add_argument('-val_and_test', '--val_and_test', default=False, action='store_true')
+
+    parser.add_argument('-pretrain', '--pretrain', type=str, choices=['retrieval', 'imgnet'])
 
     parser.add_argument('-model_path', '--model_path', type=str)
     parser.add_argument('-teacher_path', '--teacher_path', type=str)
