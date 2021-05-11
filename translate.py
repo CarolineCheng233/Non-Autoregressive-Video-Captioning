@@ -36,7 +36,7 @@ def prepare_collect_config(option, opt):
                 int(100 * option['beam_alpha'])
             )
 
-    filename = '_'.join(names + [parameter] + [opt.pretrain])
+    filename = '_'.join(names + [opt.pretrain] + [parameter])
     opt.collect_path = os.path.join(opt.collect_path, filename)
 
 
