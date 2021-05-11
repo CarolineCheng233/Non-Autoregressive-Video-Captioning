@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 from mmcv.cnn import ConvModule, constant_init, kaiming_init
 from mmcv.runner import _load_checkpoint, load_checkpoint
 from mmcv.utils import _BatchNorm, get_logger
@@ -616,10 +617,11 @@ class AvgPool(nn.Module):
 
 
 if __name__ == '__main__':
-    random_init_resnet = ResNet(pretrained=None, depth=50, norm_eval=False)
-    random_init_resnet.init_weights()
+    # random_init_resnet = ResNet(pretrained=None, depth=50, norm_eval=False)
+    # random_init_resnet.init_weights()
     imgnet_pret_resnet = ResNet(pretrained="torchvision://resnet50", depth=50, norm_eval=False)
     imgnet_pret_resnet.init_weights()
-    random_state_dict = list(random_init_resnet.state_dict().keys())
-    imgnet_state_dict = list(imgnet_pret_resnet.state_dict().keys())
-    import pdb; pdb.set_trace()
+    # random_state_dict = list(random_init_resnet.state_dict().keys())
+    # imgnet_state_dict = list(imgnet_pret_resnet.state_dict().keys())
+    # import pdb; pdb.set_trace()
+    torch.save(imgnet_pret_resnet.state_dict(), "imgnet_pretrain_resnet50.pth")
