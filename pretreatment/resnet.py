@@ -617,15 +617,15 @@ class AvgPool(nn.Module):
 
 
 if __name__ == '__main__':
-    # random_init_resnet = ResNet(pretrained=None, depth=50, norm_eval=False)
-    # random_init_resnet.init_weights()
-    imgnet_pret_resnet = ResNet(pretrained="torchvision://resnet50", depth=50, norm_eval=False)
+    imgnet_pret_resnet = ResNet(pretrained=None, depth=50, norm_eval=False)
     imgnet_pret_resnet.init_weights()
-    # random_state_dict = list(random_init_resnet.state_dict().keys())
     state_dict = imgnet_pret_resnet.state_dict()
     keys = list(state_dict.keys())
-    # import pdb; pdb.set_trace()
     backbone = {}
     for key in keys:
         backbone['backbone.' + key] = state_dict[key]
-    torch.save(backbone, "imgnet_pretrain_resnet50.pth")
+    torch.save(backbone, "random_init_resnet50.pth")
+
+    # imgnet_pret_resnet = ResNet(pretrained=None, depth=50, norm_eval=False)
+    # imgnet_pret_resnet.init_weights()
+    # imgnet_pret_resnet.load_state_dict(torch.load("random_init_resnet50.pth"))
